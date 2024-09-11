@@ -10,60 +10,75 @@ const App = () => {
 	const [firstNumber, setFirstNumber] = useState(null);
 	const [secondNumber, setSecondNumber] = useState(null);
 	const [operation, setOperation] = useState(null);
-	const [onResult, setOnResult] = useState(false);
 
-	const handleEquals = () => {
-		const buttonType = secondNumber != null ? operation : 'clear';  
-		
-		handleButton(buttonType);
-	}
-		
 	const handleButton = (buttonType) => {
 		const number = Number(buttonType);
 		
 		if (!isNaN(number)) {
 			return handleAddNumber(number);
 		}
-	
-		switch(buttonType){
+
+		let caseType = operation;
+
+		if ( buttonType === 'c'|| secondNumber == null){
+
+			if (buttonType !== operation){
+				caseType = buttonType;
+			}
+		}
+
+		switch(caseType){
 			
 			case '+': 
-				if (!handleOperation(buttonType)) return;
-				setFirstNumber(firstNumber + secondNumber); break;
+				if (secondNumber != null){
+					setFirstNumber(firstNumber + secondNumber); 
+				}
+				break;
 			
 			case '-': 
-				if (!handleOperation(buttonType)) return;
-				setFirstNumber(firstNumber - secondNumber); break;
+				if (secondNumber != null){
+					setFirstNumber(firstNumber - secondNumber); 
+				}
+				break;
 			
 			case 'x': 
-				if (!handleOperation(buttonType)) return;
-				setFirstNumber(firstNumber * secondNumber); break;
+				if (secondNumber != null){
+					setFirstNumber(firstNumber * secondNumber); 
+				}
+				break;
 
 			case '/': 
-				if (!handleOperation(buttonType)) return;
-				setFirstNumber(firstNumber / secondNumber); break;
-			
-			case 'c': setFirstNumber(null); break;
+				if (secondNumber != null){
+					setFirstNumber(firstNumber / secondNumber); 
+				}
+				break;
+
+			case 'c':
+				setFirstNumber(null); 
+				setOperation(null)
+				setSecondNumber(null)
+				return;
+
+			case '=': break;
 			
 			default: return;
 		}
 
-		setOperation(null);
 		setSecondNumber(null);
-		setOnResult(true);
+		setOperation(buttonType);
 	}
 	
 	const handleAddNumber = (num) => {
 		
-		if (operation == null) {
+		if (operation == null || operation === "=") {
 			
-			if (firstNumber == null || onResult) {
+			if (firstNumber == null || operation === "=") {
 				setFirstNumber(num);
-				setOnResult(false);
+				setOperation(null);
 				return;
 			}
 			
-			setFirstNumber(firstNumber * 10 + num);
+			setFirstNumber(firstNumber * 10 + num); 
 			return;
 		}
 		
@@ -75,22 +90,14 @@ const App = () => {
 		setSecondNumber(secondNumber * 10 + num);
 	}
 	
-	const handleOperation = (operationSign) => {
-		
-		if (firstNumber == null) return;
-		
-		if (operation == null) {
-			setOperation(operationSign);
-			return false;
-		} 
-		
-		return true;
-	}
-	
   return (
     <Container>
       <Content>
-        <Input value={`${(firstNumber != null ? firstNumber : "0")} ${operation != null ? operation : ""} ${secondNumber != null ? secondNumber : ""}`}/>
+        <Input value={
+			(firstNumber != null ? firstNumber : '0') + ' ' +
+			(String("+-/x").includes(operation) ? operation : '') + ' ' +
+			(secondNumber != null ? secondNumber : '')
+		}/>
         <Row>
           <Button label="x" onClick={() => handleButton('x')}/>
           <Button label="/" onClick={() => handleButton('/')}/>
@@ -113,7 +120,7 @@ const App = () => {
           <Button label="1" onClick={() => handleButton('1')}/>
           <Button label="2" onClick={() => handleButton('2')}/>
           <Button label="3" onClick={() => handleButton('3')}/>
-          <Button label="=" onClick={handleEquals}/>
+          <Button label="=" onClick={() => handleButton('=')}/>
         </Row>
       </Content>
     </Container>
