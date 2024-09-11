@@ -7,91 +7,112 @@ import { useState } from 'react';
 
 
 const App = () => {
-  const [currentNumber, setCurrentNumber] = useState('0');
-  const [firstNumber, setFirstNumber] = useState('0');
-  const [operation, setOperation] = useState('');
+	const [firstNumber, setFirstNumber] = useState(null);
+	const [secondNumber, setSecondNumber] = useState(null);
+	const [operation, setOperation] = useState(null);
+	const [onResult, setOnResult] = useState(false);
 
-  const handleOnClear = () => {
-    setCurrentNumber('0')
-    setFirstNumber('0')
-    setOperation('')
-  };
+	const handleEquals = () => {
+		const buttonType = secondNumber != null ? operation : 'clear';  
+		
+		handleButton(buttonType);
+	}
+		
+	const handleButton = (buttonType) => {
+		const number = Number(buttonType);
+		
+		if (!isNaN(number)) {
+			return handleAddNumber(number);
+		}
+	
+		switch(buttonType){
+			
+			case '+': 
+				if (!handleOperation(buttonType)) return;
+				setFirstNumber(firstNumber + secondNumber); break;
+			
+			case '-': 
+				if (!handleOperation(buttonType)) return;
+				setFirstNumber(firstNumber - secondNumber); break;
+			
+			case 'x': 
+				if (!handleOperation(buttonType)) return;
+				setFirstNumber(firstNumber * secondNumber); break;
 
-  const handleAddNumber = (num) => {
-    setCurrentNumber(prev => `${prev === '0' ? '' : prev}${num}`)
-  }
+			case '/': 
+				if (!handleOperation(buttonType)) return;
+				setFirstNumber(firstNumber / secondNumber); break;
+			
+			case 'c': setFirstNumber(null); break;
+			
+			default: return;
+		}
 
-  const handleSumNumbers = () => {
-
-    if(firstNumber === '0'){
-        setFirstNumber(String(currentNumber));
-        setCurrentNumber('0')
-        setOperation('+')
-    }else {
-      const sum = Number(firstNumber) + Number(currentNumber);
-      setCurrentNumber(String(sum))
-      setOperation('')
-    }
-
-  }
-
-  const handleMinusNumbers = () => {
-
-    if(firstNumber === '0'){
-        setFirstNumber(String(currentNumber));
-        setCurrentNumber('0')
-        setOperation('-')
-    }else {
-      const sum = Number(firstNumber) - Number(currentNumber);
-      setCurrentNumber(String(sum))
-      setOperation('')
-    }
-
-  }
-
-  const handleEquals = () => {
-
-    if(firstNumber !== '0' && operation !== '' && currentNumber !== '0'){
-        switch(operation){
-          case '+':
-            handleSumNumbers();
-            break;
-          case '-':
-            handleMinusNumbers();
-            break;
-          default: 
-            break;
-        }
-    }
-
-  }
-
+		setOperation(null);
+		setSecondNumber(null);
+		setOnResult(true);
+	}
+	
+	const handleAddNumber = (num) => {
+		
+		if (operation == null) {
+			
+			if (firstNumber == null || onResult) {
+				setFirstNumber(num);
+				setOnResult(false);
+				return;
+			}
+			
+			setFirstNumber(firstNumber * 10 + num);
+			return;
+		}
+		
+		if (secondNumber == null) {
+			setSecondNumber(num);
+			return;
+		}
+		
+		setSecondNumber(secondNumber * 10 + num);
+	}
+	
+	const handleOperation = (operationSign) => {
+		
+		if (firstNumber == null) return;
+		
+		if (operation == null) {
+			setOperation(operationSign);
+			return false;
+		} 
+		
+		return true;
+	}
+	
   return (
     <Container>
       <Content>
-        <Input value={currentNumber}/>
+        <Input value={`${(firstNumber != null ? firstNumber : "0")} ${operation != null ? operation : ""} ${secondNumber != null ? secondNumber : ""}`}/>
         <Row>
-          <Button label="x"/>
-          <Button label="/"/>
-          <Button label="c" onClick={handleOnClear}/>
+          <Button label="x" onClick={() => handleButton('x')}/>
+          <Button label="/" onClick={() => handleButton('/')}/>
+          <Button label="c" onClick={() => handleButton('c')}/>
           <Button label="."/>
         </Row>
         <Row>
-          <Button label="7" onClick={() => handleAddNumber('7')}/>
-          <Button label="8" onClick={() => handleAddNumber('8')}/>
-          <Button label="9" onClick={() => handleAddNumber('9')}/>
-          <Button label="-" onClick={handleMinusNumbers}/>
+          <Button label="7" onClick={() => handleButton('7')}/>
+          <Button label="8" onClick={() => handleButton('8')}/>
+          <Button label="9" onClick={() => handleButton('9')}/>
+          <Button label="-" onClick={() => handleButton('-')}/>
         </Row>
         <Row>
-          <Button label="4" onClick={() => handleAddNumber('4')}/>
-          <Button label="5" onClick={() => handleAddNumber('5')}/>
-          <Button label="6" onClick={() => handleAddNumber('6')}/>
-          <Button label="+" onClick={handleSumNumbers}/>
+          <Button label="4" onClick={() => handleButton('4')}/>
+          <Button label="5" onClick={() => handleButton('5')}/>
+          <Button label="6" onClick={() => handleButton('6')}/>
+          <Button label="+" onClick={() => handleButton('+')}/>
         </Row>
         <Row>
-          <Button label="1" onClick={() => handleAddNumber('1')}/>
-          <Button label="2" onClick={() => handleAddNumber('2')}/>
-          <Button label="3" onClick={() => handleAddNumber('3')}/>
+          <Button label="1" onClick={() => handleButton('1')}/>
+          <Button label="2" onClick={() => handleButton('2')}/>
+          <Button label="3" onClick={() => handleButton('3')}/>
           <Button label="=" onClick={handleEquals}/>
         </Row>
       </Content>
